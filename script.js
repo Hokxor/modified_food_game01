@@ -15,6 +15,7 @@ let slicedHalves = [];
 let particles = [];
 let gridSplashes = [];
 
+// Food items inspired by high-contrast pattern, preserving red malware bomb
 const FOOD_ITEMS = [
   { id: 'apple', name: 'Golden Apple', compute: 10.0, isBomb: false, color: '#FCA311', radius: 22, tip: '🍎 Golden Apples boost nutrient processing & matrix compute density!' },
   { id: 'banana', name: 'Quantum Banana', compute: 6.5, isBomb: false, color: '#FCA311', radius: 20, tip: '🍌 Quantum Bananas provide high-potassium kinetic momentum.' },
@@ -73,6 +74,7 @@ function triggerWhiteFlash() {
   setTimeout(() => { flash.classList.remove("active"); }, 250);
 }
 
+// Canvas rendering routine for high-contrast food items
 function drawFoodShape(ctx, item) {
   const r = item.radius;
   ctx.save();
@@ -226,6 +228,7 @@ function drawFoodShape(ctx, item) {
 
     case 'malware_trap':
     default:
+      // Red malware bomb preserved as red spiky core with warning icon
       ctx.fillStyle = '#000000';
       ctx.strokeStyle = '#FF2A2A';
       ctx.lineWidth = 3;
