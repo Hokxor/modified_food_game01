@@ -17,14 +17,14 @@ let slicedHalves = [];
 let particles = [];
 let gridSplashes = [];
 
-// AI Generative Node Database (Updated to Black & Gold Palette)
+// AI Generative Node Database (Bomb updated with Crimson Red damage color '#FF2A2A')
 const AI_NODES = [
   { id: 'neural_melon', name: 'Neural Matrix Core', compute: 12.5, isBomb: false, color: '#FCA311', coreColor: '#FFFFFF', radius: 24, tip: '⚡ Neural Matrix Cores process 10,000 synthetic parameters per millisecond.' },
   { id: 'cyber_banana', name: 'Quantum Data Strand', compute: 4.8, isBomb: false, color: '#E5E5E5', coreColor: '#FCA311', radius: 18, tip: '⚡ Quantum Strands accelerate matrix multiplication with zero thermal noise.' },
   { id: 'quantum_apple', name: 'Synthetix Node', compute: 8.5, isBomb: false, color: '#FCA311', coreColor: '#E5E5E5', radius: 20, tip: '⚡ Synthetix Nodes stream real-time generative visual vectors.' },
   { id: 'nano_carrot', name: 'Bio-Vector Core', compute: 6.2, isBomb: false, color: '#E5E5E5', coreColor: '#FFFFFF', radius: 18, tip: '⚡ Bio-Vectors optimize neural network gradient convergence rates.' },
   { id: 'bio_broccoli', name: 'Generative Cluster', compute: 15.0, isBomb: false, color: '#FCA311', coreColor: '#FFFFFF', radius: 22, tip: '⚡ Generative Clusters produce ultra-high resolution latent space renders.' },
-  { id: 'malware_trap', name: 'Corrupted Malware Bomb', compute: -25.0, isBomb: true, color: '#FCA311', coreColor: '#000000', radius: 22, tip: '💥 BREACH DETECTED! Malware injection drained compute capacity & damaged system integrity!' }
+  { id: 'malware_trap', name: 'Corrupted Malware Bomb', compute: -25.0, isBomb: true, color: '#FF2A2A', coreColor: '#000000', radius: 22, tip: '💥 BREACH DETECTED! Malware injection drained compute capacity & damaged system integrity!' }
 ];
 
 // Trigger Phone Screen White Flash
@@ -72,11 +72,11 @@ function drawAINodeShape(ctx, node) {
 
   ctx.save();
   ctx.shadowColor = node.color;
-  ctx.shadowBlur = 12;
+  ctx.shadowBlur = 14;
 
   if (node.isBomb) {
     ctx.fillStyle = '#000000';
-    ctx.strokeStyle = '#FCA311';
+    ctx.strokeStyle = '#FF2A2A'; // Red damage indicator color
     ctx.lineWidth = 3;
 
     ctx.beginPath();
@@ -91,7 +91,7 @@ function drawAINodeShape(ctx, node) {
     ctx.closePath();
     ctx.fill(); ctx.stroke();
 
-    ctx.fillStyle = '#FCA311';
+    ctx.fillStyle = '#FF2A2A';
     ctx.font = '900 15px monospace';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText('⚠', 0, 0);
@@ -132,7 +132,7 @@ function drawHalvedAINode(ctx, node, side) {
   drawAINodeShape(ctx, node);
 
   ctx.fillStyle = '#FFFFFF';
-  ctx.shadowColor = '#FCA311';
+  ctx.shadowColor = node.isBomb ? '#FF2A2A' : '#FCA311';
   ctx.shadowBlur = 10;
   ctx.fillRect(-2, -node.radius - 8, 4, (node.radius + 8) * 2);
   ctx.restore();
@@ -235,13 +235,14 @@ function checkSlices() {
   }
 }
 
+// Creates an explosive burst using the Crimson Damage color
 function createCyberExplosion(x, y) {
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 45; i++) {
     particles.push({
       x: x, y: y,
-      vx: (Math.random() - 0.5) * 16,
-      vy: (Math.random() - 0.5) * 16,
-      color: Math.random() > 0.5 ? '#FCA311' : '#FFFFFF',
+      vx: (Math.random() - 0.5) * 18,
+      vy: (Math.random() - 0.5) * 18,
+      color: Math.random() > 0.4 ? '#FF2A2A' : '#FCA311',
       size: 4 + Math.random() * 6,
       alpha: 1.0
     });
@@ -348,7 +349,7 @@ function update() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Background Grid (Gold tint)
+  // Background Grid
   ctx.save();
   ctx.strokeStyle = "rgba(252, 163, 17, 0.08)";
   ctx.lineWidth = 1;
@@ -458,5 +459,5 @@ canvas.addEventListener('touchstart', e => { isSwiping = true; addBladePoint(e);
 canvas.addEventListener('touchmove', e => { if (isSwiping) addBladePoint(e); }, { passive: true });
 window.addEventListener('touchend', () => isSwiping = false);
 
-// Start Game Loop
+// Start
 gameLoop();
