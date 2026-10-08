@@ -15,16 +15,18 @@ let slicedHalves = [];
 let particles = [];
 let gridSplashes = [];
 
-const AI_NODES = [
-  { id: 'neural_melon', name: 'Neural Matrix Core', compute: 12.5, isBomb: false, color: '#FCA311', coreColor: '#FFFFFF', radius: 24, tip: '⚡ Neural Matrix Cores process 10,000 synthetic parameters per millisecond.' },
-  { id: 'cyber_banana', name: 'Quantum Data Strand', compute: 4.8, isBomb: false, color: '#E5E5E5', coreColor: '#FCA311', radius: 18, tip: '⚡ Quantum Strands accelerate matrix multiplication with zero thermal noise.' },
-  { id: 'quantum_apple', name: 'Synthetix Node', compute: 8.5, isBomb: false, color: '#FCA311', coreColor: '#E5E5E5', radius: 20, tip: '⚡ Synthetix Nodes stream real-time generative visual vectors.' },
-  { id: 'nano_carrot', name: 'Bio-Vector Core', compute: 6.2, isBomb: false, color: '#E5E5E5', coreColor: '#FFFFFF', radius: 18, tip: '⚡ Bio-Vectors optimize neural network gradient convergence rates.' },
-  { id: 'bio_broccoli', name: 'Generative Cluster', compute: 15.0, isBomb: false, color: '#FCA311', coreColor: '#FFFFFF', radius: 22, tip: '⚡ Generative Clusters produce ultra-high resolution latent space renders.' },
-  { id: 'malware_trap', name: 'Corrupted Malware Bomb', compute: -25.0, isBomb: true, color: '#FF2A2A', coreColor: '#000000', radius: 22, tip: '💥 BREACH DETECTED! Malware injection drained compute capacity & damaged system integrity!' }
+const FOOD_ITEMS = [
+  { id: 'apple', name: 'Golden Apple', compute: 10.0, isBomb: false, color: '#FCA311', radius: 22, tip: '🍎 Golden Apples boost nutrient processing & matrix compute density!' },
+  { id: 'banana', name: 'Quantum Banana', compute: 6.5, isBomb: false, color: '#FCA311', radius: 20, tip: '🍌 Quantum Bananas provide high-potassium kinetic momentum.' },
+  { id: 'strawberry', name: 'Vector Strawberry', compute: 8.0, isBomb: false, color: '#FCA311', radius: 18, tip: '🍓 Vector Strawberries optimize micro-gradient convergence rates.' },
+  { id: 'broccoli', name: 'Cluster Broccoli', compute: 14.0, isBomb: false, color: '#14213D', radius: 24, tip: '🥦 Cluster Broccoli expands latent space visual neural trees.' },
+  { id: 'avocado', name: 'Bio Avocado', compute: 12.0, isBomb: false, color: '#14213D', radius: 22, tip: '🥑 Bio Avocados deliver essential healthy lipid compute units.' },
+  { id: 'salmon', name: 'Omega Salmon', compute: 15.0, isBomb: false, color: '#FCA311', radius: 22, tip: '🍣 Omega Salmon Fillets supercharge real-time matrix multiplication.' },
+  { id: 'rice_bowl', name: 'Data Rice Bowl', compute: 9.0, isBomb: false, color: '#FFFFFF', radius: 20, tip: '🍚 Data Rice Bowls maintain continuous baseline system energy.' },
+  { id: 'mushroom', name: 'Spore Mushroom', compute: 7.5, isBomb: false, color: '#E5E5E5', radius: 18, tip: '🍄 Spore Mushrooms accelerate neural interconnect response time.' },
+  { id: 'malware_trap', name: 'Corrupted Malware Bomb', compute: -25.0, isBomb: true, color: '#FF2A2A', radius: 22, tip: '💥 BREACH DETECTED! Malware injection damaged food matrix integrity!' }
 ];
 
-// Single shared Audio Context to prevent audio device crashing
 let globalAudioCtx = null;
 function getAudioContext() {
   if (!globalAudioCtx) {
@@ -71,69 +73,189 @@ function triggerWhiteFlash() {
   setTimeout(() => { flash.classList.remove("active"); }, 250);
 }
 
-function drawAINodeShape(ctx, node) {
-  const radius = node.radius;
-
+function drawFoodShape(ctx, item) {
+  const r = item.radius;
   ctx.save();
-  ctx.shadowColor = node.color;
-  ctx.shadowBlur = 14;
+  ctx.shadowColor = item.color;
+  ctx.shadowBlur = 12;
 
-  if (node.isBomb) {
-    ctx.fillStyle = '#000000';
-    ctx.strokeStyle = '#FF2A2A';
-    ctx.lineWidth = 3;
+  switch(item.id) {
+    case 'apple':
+      ctx.fillStyle = '#FCA311';
+      ctx.beginPath();
+      ctx.arc(-r * 0.35, 0, r * 0.65, 0, Math.PI * 2);
+      ctx.arc(r * 0.35, 0, r * 0.65, 0, Math.PI * 2);
+      ctx.fill();
 
-    ctx.beginPath();
-    for (let i = 0; i < 8; i++) {
-      const angle = (Math.PI * 2 / 8) * i;
-      const r = (i % 2 === 0) ? radius + 6 : radius - 4;
-      const x = Math.cos(angle) * r;
-      const y = Math.sin(angle) * r;
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(0, -r * 0.5);
+      ctx.quadraticCurveTo(3, -r * 1.0, 7, -r * 1.1);
+      ctx.stroke();
 
-    ctx.fillStyle = '#FF2A2A';
-    ctx.font = '900 15px monospace';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('⚠', 0, 0);
-  } else {
-    ctx.fillStyle = '#14213D';
-    ctx.strokeStyle = node.color;
-    ctx.lineWidth = 2.5;
+      ctx.fillStyle = '#14213D';
+      ctx.beginPath();
+      ctx.ellipse(-5, -r * 0.7, 6, 3, -Math.PI / 4, 0, Math.PI * 2);
+      ctx.fill();
+      break;
 
-    ctx.beginPath();
-    for (let i = 0; i < 6; i++) {
-      const angle = (Math.PI * 2 / 6) * i;
-      const x = Math.cos(angle) * radius;
-      const y = Math.sin(angle) * radius;
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
+    case 'banana':
+      ctx.fillStyle = '#FCA311';
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0.25 * Math.PI, 0.95 * Math.PI);
+      ctx.arc(-r * 0.25, -r * 0.25, r * 0.85, 0.95 * Math.PI, 0.25 * Math.PI, true);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      break;
 
-    ctx.fillStyle = node.coreColor;
-    ctx.beginPath();
-    ctx.arc(0, 0, radius * 0.45, 0, Math.PI * 2);
-    ctx.fill();
+    case 'strawberry':
+      ctx.fillStyle = '#FCA311';
+      ctx.beginPath();
+      ctx.moveTo(0, r * 0.9);
+      ctx.quadraticCurveTo(-r * 1.1, 0, -r * 0.6, -r * 0.5);
+      ctx.quadraticCurveTo(0, -r * 0.8, 0, -r * 0.4);
+      ctx.quadraticCurveTo(0, -r * 0.8, r * 0.6, -r * 0.5);
+      ctx.quadraticCurveTo(r * 1.1, 0, 0, r * 0.9);
+      ctx.fill();
 
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, radius * 0.8, radius * 0.25, Math.PI / 3, 0, Math.PI * 2);
-    ctx.stroke();
+      ctx.fillStyle = '#14213D';
+      [-5, 0, 5].forEach(x => {
+        [-2, 4].forEach(y => {
+          ctx.beginPath();
+          ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      });
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.moveTo(-r * 0.5, -r * 0.5);
+      ctx.lineTo(0, -r * 0.9);
+      ctx.lineTo(r * 0.5, -r * 0.5);
+      ctx.fill();
+      break;
+
+    case 'broccoli':
+      ctx.fillStyle = '#E5E5E5';
+      ctx.fillRect(-r * 0.25, 0, r * 0.5, r * 0.8);
+
+      ctx.fillStyle = '#14213D';
+      ctx.strokeStyle = '#FCA311';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, -r * 0.4, r * 0.55, 0, Math.PI * 2);
+      ctx.arc(-r * 0.45, -r * 0.1, r * 0.45, 0, Math.PI * 2);
+      ctx.arc(r * 0.45, -r * 0.1, r * 0.45, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+      break;
+
+    case 'avocado':
+      ctx.fillStyle = '#14213D';
+      ctx.strokeStyle = '#FCA311';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r * 0.75, r, 0, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = '#E5E5E5';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r * 0.55, r * 0.75, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#FCA311';
+      ctx.beginPath();
+      ctx.arc(0, r * 0.2, r * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+
+    case 'salmon':
+      ctx.fillStyle = '#FCA311';
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r, r * 0.6, Math.PI / 6, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      [-r * 0.4, 0, r * 0.4].forEach(offset => {
+        ctx.beginPath();
+        ctx.moveTo(offset - 4, -r * 0.3);
+        ctx.lineTo(offset + 4, r * 0.3);
+        ctx.stroke();
+      });
+      break;
+
+    case 'rice_bowl':
+      ctx.fillStyle = '#14213D';
+      ctx.strokeStyle = '#FCA311';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.85, 0, Math.PI);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.85, Math.PI, 0);
+      ctx.fill();
+
+      ctx.fillStyle = '#14213D';
+      [-8, -2, 4, 8].forEach(x => {
+        ctx.beginPath();
+        ctx.arc(x, -r * 0.3, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      break;
+
+    case 'mushroom':
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(-r * 0.25, -r * 0.1, r * 0.5, r * 0.75);
+
+      ctx.fillStyle = '#E5E5E5';
+      ctx.strokeStyle = '#FCA311';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, -r * 0.1, r * 0.75, Math.PI, 0);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      break;
+
+    case 'malware_trap':
+    default:
+      ctx.fillStyle = '#000000';
+      ctx.strokeStyle = '#FF2A2A';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (let i = 0; i < 8; i++) {
+        const angle = (Math.PI * 2 / 8) * i;
+        const dist = (i % 2 === 0) ? r + 6 : r - 4;
+        const x = Math.cos(angle) * dist;
+        const y = Math.sin(angle) * dist;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = '#FF2A2A';
+      ctx.font = '900 15px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('⚠', 0, 0);
+      break;
   }
 
   ctx.restore();
 }
 
-function drawHalvedAINode(ctx, node, side) {
+function drawHalvedFoodNode(ctx, node, side) {
   ctx.save();
   ctx.clip(new Path2D(side === 1 ? 'M -60 -60 L 0 -60 L 0 60 L -60 60 Z' : 'M 0 -60 L 60 -60 L 60 60 L 0 60 Z'));
-  drawAINodeShape(ctx, node);
+  drawFoodShape(ctx, node);
 
   ctx.fillStyle = '#FFFFFF';
   ctx.shadowColor = node.isBomb ? '#FF2A2A' : '#FCA311';
@@ -147,7 +269,7 @@ function spawnCluster() {
 
   const count = Math.floor(Math.random() * 2) + 1;
   for (let i = 0; i < count; i++) {
-    const nodeDef = AI_NODES[Math.floor(Math.random() * AI_NODES.length)];
+    const nodeDef = FOOD_ITEMS[Math.floor(Math.random() * FOOD_ITEMS.length)];
 
     flyingItems.push({
       ...nodeDef,
@@ -277,7 +399,7 @@ function resetGame() {
 
   document.getElementById("sliced-count").innerText = "0";
   document.getElementById("budget-display").innerText = "0.0 FLOPS";
-  document.getElementById("tip-display").innerHTML = "⚡ <strong>NEURAL PROTOCOL:</strong> Slash airborne AI Data Cores! Avoid slicing Red Malware Bombs!";
+  document.getElementById("tip-display").innerHTML = "⚡ <strong>NEURAL PROTOCOL:</strong> Slash airborne AI Data Foods! Avoid slicing Red Malware Bombs!";
   document.getElementById("gameOverScreen").style.display = "none";
 
   updateLivesUI();
@@ -299,7 +421,6 @@ function update() {
     item.vy += item.gravity;
     item.rotation += item.vRot;
 
-    // Left and Right Wall Bouncing
     if (item.x - item.radius < 10) {
       item.x = 10 + item.radius;
       item.vx = Math.abs(item.vx) * 0.8;
@@ -308,13 +429,11 @@ function update() {
       item.vx = -Math.abs(item.vx) * 0.8;
     }
 
-    // Top Ceiling Bouncing
     if (item.y - item.radius < 20) {
       item.y = 20 + item.radius;
       item.vy = Math.abs(item.vy) * 0.5;
     }
 
-    // Pass through Danger Line
     if (item.y > DANGER_LINE_Y && item.vy > 0) {
       if (!item.isBomb && !item.sliced) {
         lives--;
@@ -327,7 +446,7 @@ function update() {
         });
 
         if (lives <= 0) {
-          triggerGameOver("System Integrity Depleted! Data Nodes crossed Danger Line!");
+          triggerGameOver("System Integrity Depleted! Food items crossed Danger Line!");
         }
       }
       flyingItems.splice(i, 1);
@@ -370,7 +489,6 @@ function update() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Background Grid
   ctx.save();
   ctx.strokeStyle = "rgba(252, 163, 17, 0.08)";
   ctx.lineWidth = 1;
@@ -382,7 +500,6 @@ function draw() {
   }
   ctx.restore();
 
-  // Danger Line
   ctx.save();
   ctx.strokeStyle = '#FF2A2A';
   ctx.lineWidth = 2;
@@ -400,7 +517,6 @@ function draw() {
   ctx.fillText('⚡ DANGER LINE ⚡', canvas.width / 2, DANGER_LINE_Y + 14);
   ctx.restore();
 
-  // Splashes
   gridSplashes.forEach(s => {
     ctx.save();
     ctx.globalAlpha = Math.max(0, s.alpha);
@@ -414,25 +530,22 @@ function draw() {
     ctx.restore();
   });
 
-  // Flying Nodes
   flyingItems.forEach(item => {
     ctx.save();
     ctx.translate(item.x, item.y);
     ctx.rotate(item.rotation);
-    drawAINodeShape(ctx, item);
+    drawFoodShape(ctx, item);
     ctx.restore();
   });
 
-  // Halves
   slicedHalves.forEach(half => {
     ctx.save();
     ctx.translate(half.x, half.y);
     ctx.rotate(half.rotation);
-    drawHalvedAINode(ctx, half.node, half.side);
+    drawHalvedFoodNode(ctx, half.node, half.side);
     ctx.restore();
   });
 
-  // Particles
   particles.forEach(p => {
     ctx.save();
     ctx.globalAlpha = Math.max(0, p.alpha);
@@ -445,7 +558,6 @@ function draw() {
     ctx.restore();
   });
 
-  // Blade Path
   if (bladePath.length > 1) {
     ctx.save();
     ctx.lineCap = 'round';
