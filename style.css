@@ -1,9 +1,10 @@
 :root {
-  --cyber-dark: #000000;       /* Pure Black base background[cite: 1] */
-  --cyber-card: #14213D;       /* Deep Navy container background[cite: 1] */
-  --gold-accent: #FCA311;      /* Bright Gold neon accent[cite: 1] */
-  --light-gray: #E5E5E5;       /* Muted text & border details[cite: 1] */
-  --pure-white: #FFFFFF;       /* High-contrast text & glowing core[cite: 1] */
+  --cyber-dark: #000000;       /* Pure Black base background */
+  --cyber-card: #14213D;       /* Deep Navy container background */
+  --gold-accent: #FCA311;      /* Bright Gold neon accent */
+  --damage-color: #FF2A2A;     /* Crimson Red danger & damage color */
+  --light-gray: #E5E5E5;       /* Muted text & border details */
+  --pure-white: #FFFFFF;       /* High-contrast text & glowing core */
   --font-stack: "Segoe UI", Roboto, -apple-system, sans-serif, monospace;
 }
 
@@ -34,14 +35,14 @@ body {
   overflow: hidden;
 }
 
-/* Fullscreen White Flash Effect */
+/* Fullscreen Flash Effect */
 .flash-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: var(--pure-white);
+  background-color: var(--damage-color);
   opacity: 0;
   pointer-events: none;
   z-index: 99999;
@@ -49,7 +50,7 @@ body {
 }
 
 .flash-overlay.active {
-  opacity: 1;
+  opacity: 0.8;
 }
 
 .game-card {
@@ -108,9 +109,14 @@ header p {
   gap: 4px;
 }
 
-.val-cyan, .val-pink, .val-green { 
+.val-cyan, .val-green { 
   color: var(--gold-accent); 
   text-shadow: 0 0 8px var(--gold-accent); 
+}
+
+.val-pink {
+  color: var(--damage-color);
+  text-shadow: 0 0 8px var(--damage-color);
 }
 
 .canvas-container {
@@ -149,9 +155,9 @@ canvas {
 
 .overlay h2 {
   font-size: 2rem;
-  color: var(--gold-accent);
+  color: var(--damage-color);
   margin-bottom: 8px;
-  text-shadow: 0 0 15px var(--gold-accent);
+  text-shadow: 0 0 15px var(--damage-color);
   letter-spacing: 2px;
 }
 
