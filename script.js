@@ -1,23 +1,20 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Game Variables
 let slicedCount = 0;
 let computeValue = 0;
 let lives = 3;
 let gameOver = false;
 let spawnTimer = 0;
 
-// Laser Trail
-let bladePath = []; // {x, y, time}
+const DANGER_LINE_Y = 440;
 
-// Canvas Entities
+let bladePath = [];
 let flyingItems = [];
 let slicedHalves = [];
 let particles = [];
 let gridSplashes = [];
 
-// AI Generative Node Database (Bomb updated with Crimson Red damage color '#FF2A2A')
 const AI_NODES = [
   { id: 'neural_melon', name: 'Neural Matrix Core', compute: 12.5, isBomb: false, color: '#FCA311', coreColor: '#FFFFFF', radius: 24, tip: '⚡ Neural Matrix Cores process 10,000 synthetic parameters per millisecond.' },
   { id: 'cyber_banana', name: 'Quantum Data Strand', compute: 4.8, isBomb: false, color: '#E5E5E5', coreColor: '#FCA311', radius: 18, tip: '⚡ Quantum Strands accelerate matrix multiplication with zero thermal noise.' },
@@ -27,22 +24,23 @@ const AI_NODES = [
   { id: 'malware_trap', name: 'Corrupted Malware Bomb', compute: -25.0, isBomb: true, color: '#FF2A2A', coreColor: '#000000', radius: 22, tip: '💥 BREACH DETECTED! Malware injection drained compute capacity & damaged system integrity!' }
 ];
 
-// Trigger Phone Screen White Flash
-function triggerWhiteFlash() {
-  const flash = document.getElementById("flashOverlay");
-  if (!flash) return;
-  flash.classList.add("active");
-  setTimeout(() => {
-    flash.classList.remove("active");
-  }, 250);
+// Single shared Audio Context to prevent audio device crashing
+let globalAudioCtx = null;
+function getAudioContext() {
+  if (!globalAudioCtx) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) globalAudioCtx = new AudioCtx();
+  }
+  if (globalAudioCtx && globalAudioCtx.state === 'suspended') {
+    globalAudioCtx.resume();
+  }
+  return globalAudioCtx;
 }
 
-// Web Audio Synthesizer
 function playLaserSound(type) {
   try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx) return;
-    const actx = new AudioCtx();
+    const actx = getAudioContext();
+    if (!actx) return;
     const osc = actx.createOscillator();
     const gain = actx.createGain();
     osc.connect(gain);
@@ -66,7 +64,13 @@ function playLaserSound(type) {
   } catch(e) {}
 }
 
-// Node Drawing Routines
+function triggerWhiteFlash() {
+  const flash = document.getElementById("flashOverlay");
+  if (!flash) return;
+  flash.classList.add("active");
+  setTimeout(() => { flash.classList.remove("active"); }, 250);
+}
+
 function drawAINodeShape(ctx, node) {
   const radius = node.radius;
 
@@ -76,7 +80,7 @@ function drawAINodeShape(ctx, node) {
 
   if (node.isBomb) {
     ctx.fillStyle = '#000000';
-    ctx.strokeStyle = '#FF2A2A'; // Red damage indicator color
+    ctx.strokeStyle = '#FF2A2A';
     ctx.lineWidth = 3;
 
     ctx.beginPath();
@@ -138,7 +142,6 @@ function drawHalvedAINode(ctx, node, side) {
   ctx.restore();
 }
 
-// Spawning Engine
 function spawnCluster() {
   if (gameOver) return;
 
@@ -148,11 +151,11 @@ function spawnCluster() {
 
     flyingItems.push({
       ...nodeDef,
-      x: 60 + Math.random() * (canvas.width - 120),
-      y: canvas.height + 30,
-      vx: (Math.random() - 0.5) * 4.5,
-      vy: -(12.5 + Math.random() * 3.5),
-      gravity: 0.28,
+      x: 50 + Math.random() * (canvas.width - 100),
+      y: DANGER_LINE_Y - 15,
+      vx: (Math.random() - 0.5) * 3.5,
+      vy: -(9.5 + Math.random() * 2.5),
+      gravity: 0.25,
       rotation: Math.random() * Math.PI,
       vRot: (Math.random() - 0.5) * 0.12,
       sliced: false
@@ -160,7 +163,6 @@ function spawnCluster() {
   }
 }
 
-// Slice Distance Detector
 function distToSegment(px, py, x1, y1, x2, y2) {
   const l2 = (x2 - x1) ** 2 + (y2 - y1) ** 2;
   if (l2 === 0) return Math.hypot(px - x1, py - y1);
@@ -184,7 +186,6 @@ function checkSlices() {
     if (dist < item.radius + 8) {
       item.sliced = true;
 
-      // HIT MALWARE BOMB
       if (item.isBomb) {
         triggerWhiteFlash();
         playLaserSound('explode');
@@ -193,7 +194,6 @@ function checkSlices() {
         return;
       }
 
-      // SLICE DATA NODE
       playLaserSound('slash');
       slicedCount++;
       computeValue += item.compute;
@@ -235,7 +235,6 @@ function checkSlices() {
   }
 }
 
-// Creates an explosive burst using the Crimson Damage color
 function createCyberExplosion(x, y) {
   for (let i = 0; i < 45; i++) {
     particles.push({
@@ -278,18 +277,17 @@ function resetGame() {
 
   document.getElementById("sliced-count").innerText = "0";
   document.getElementById("budget-display").innerText = "0.0 FLOPS";
-  document.getElementById("tip-display").innerHTML = "⚡ <strong>NEURAL PROTOCOL:</strong> Slash airborne AI Data Cores! Avoid slicing Red Corrupted Malware Bombs!";
+  document.getElementById("tip-display").innerHTML = "⚡ <strong>NEURAL PROTOCOL:</strong> Slash airborne AI Data Cores! Avoid slicing Red Malware Bombs!";
   document.getElementById("gameOverScreen").style.display = "none";
 
   updateLivesUI();
 }
 
-// Engine Loop
 function update() {
   if (gameOver) return;
 
   spawnTimer++;
-  if (spawnTimer > 65) {
+  if (spawnTimer > 70) {
     spawnCluster();
     spawnTimer = 0;
   }
@@ -301,12 +299,35 @@ function update() {
     item.vy += item.gravity;
     item.rotation += item.vRot;
 
-    if (item.y > canvas.height + 40) {
+    // Left and Right Wall Bouncing
+    if (item.x - item.radius < 10) {
+      item.x = 10 + item.radius;
+      item.vx = Math.abs(item.vx) * 0.8;
+    } else if (item.x + item.radius > canvas.width - 10) {
+      item.x = canvas.width - 10 - item.radius;
+      item.vx = -Math.abs(item.vx) * 0.8;
+    }
+
+    // Top Ceiling Bouncing
+    if (item.y - item.radius < 20) {
+      item.y = 20 + item.radius;
+      item.vy = Math.abs(item.vy) * 0.5;
+    }
+
+    // Pass through Danger Line
+    if (item.y > DANGER_LINE_Y && item.vy > 0) {
       if (!item.isBomb && !item.sliced) {
         lives--;
         updateLivesUI();
+        
+        gridSplashes.push({
+          x: item.x, y: DANGER_LINE_Y,
+          color: '#FF2A2A',
+          radius: 12, alpha: 1.0
+        });
+
         if (lives <= 0) {
-          triggerGameOver("System Integrity Depleted! Unharvested Data Nodes Lost!");
+          triggerGameOver("System Integrity Depleted! Data Nodes crossed Danger Line!");
         }
       }
       flyingItems.splice(i, 1);
@@ -320,7 +341,7 @@ function update() {
     half.vy += half.gravity;
     half.rotation += half.vRot;
 
-    if (half.y > canvas.height + 50) {
+    if (half.y > canvas.height + 40) {
       slicedHalves.splice(i, 1);
     }
   }
@@ -361,7 +382,25 @@ function draw() {
   }
   ctx.restore();
 
-  // Grid Splashes
+  // Danger Line
+  ctx.save();
+  ctx.strokeStyle = '#FF2A2A';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = '#FF2A2A';
+  ctx.shadowBlur = 10;
+  ctx.setLineDash([8, 6]);
+  ctx.beginPath();
+  ctx.moveTo(0, DANGER_LINE_Y);
+  ctx.lineTo(canvas.width, DANGER_LINE_Y);
+  ctx.stroke();
+
+  ctx.fillStyle = '#FF2A2A';
+  ctx.font = '900 10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('⚡ DANGER LINE ⚡', canvas.width / 2, DANGER_LINE_Y + 14);
+  ctx.restore();
+
+  // Splashes
   gridSplashes.forEach(s => {
     ctx.save();
     ctx.globalAlpha = Math.max(0, s.alpha);
@@ -437,11 +476,17 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// Controls Logic
 function addBladePoint(e) {
   const rect = canvas.getBoundingClientRect();
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  let clientX, clientY;
+
+  if (e.touches && e.touches.length > 0) {
+    clientX = e.touches[0].clientX;
+    clientY = e.touches[0].clientY;
+  } else {
+    clientX = e.clientX;
+    clientY = e.clientY;
+  }
 
   const x = (clientX - rect.left) * (canvas.width / rect.width);
   const y = (clientY - rect.top) * (canvas.height / rect.height);
@@ -451,13 +496,12 @@ function addBladePoint(e) {
 
 let isSwiping = false;
 
-canvas.addEventListener('mousedown', e => { isSwiping = true; addBladePoint(e); });
+canvas.addEventListener('mousedown', e => { isSwiping = true; getAudioContext(); addBladePoint(e); });
 canvas.addEventListener('mousemove', e => { if (isSwiping) addBladePoint(e); });
 window.addEventListener('mouseup', () => isSwiping = false);
 
-canvas.addEventListener('touchstart', e => { isSwiping = true; addBladePoint(e); }, { passive: true });
+canvas.addEventListener('touchstart', e => { isSwiping = true; getAudioContext(); addBladePoint(e); }, { passive: true });
 canvas.addEventListener('touchmove', e => { if (isSwiping) addBladePoint(e); }, { passive: true });
 window.addEventListener('touchend', () => isSwiping = false);
 
-// Start
 gameLoop();
